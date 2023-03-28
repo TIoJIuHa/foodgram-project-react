@@ -57,7 +57,7 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         verbose_name="Ингредиенты",
-        through="RecipeIngregient",
+        through="RecipeIngredient",
         related_name="recipes"
     )
     tags = models.ManyToManyField(
@@ -74,20 +74,12 @@ class Recipe(models.Model):
         verbose_name="Дата создания",
         auto_now_add=True
     )
-    # is_favorited = models.BooleanField(
-    #     verbose_name="В избранном",
-    #     default=False
-    # )
-    # is_in_shopping_cart = models.BooleanField(
-    #     verbose_name="В корзине",
-    #     default=False
-    # )
 
     def __str__(self):
         return self.name
 
 
-class RecipeIngregient(models.Model):
+class RecipeIngredient(models.Model):
     """Наличие определенного ингредиента в определенном рецепте"""
     recipe = models.ForeignKey(
         Recipe,
@@ -104,9 +96,6 @@ class RecipeIngregient(models.Model):
         validators=[MinValueValidator(1)]
     )
 
-    # class Meta:
-    #     db_table = "recipes_recipe_ingredients"
-
 
 class ShoppingCart(models.Model):
     """Корзина с рецептами"""
@@ -120,8 +109,6 @@ class ShoppingCart(models.Model):
         Recipe,
         verbose_name="Peцепт для корзины",
         on_delete=models.CASCADE,
-        blank=True,
-        null=True,
     )
 
 
@@ -137,6 +124,4 @@ class Favorite(models.Model):
         Recipe,
         verbose_name="Рецепт для избранного",
         on_delete=models.CASCADE,
-        blank=True,
-        null=True,
     )

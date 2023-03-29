@@ -31,8 +31,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ("author", "name", "image", "text", "ingredients",
-                  "tag", "cooking_time", "is_favorited", "is_in_shopping_cart")
+        fields = ("id", "author", "name", "image", "text", "ingredients",
+                  "tags", "cooking_time", "is_favorited", "is_in_shopping_cart")
 
     def check_in_list(self, obj, model):
         request = self.context["request"]
@@ -65,8 +65,8 @@ class IngredientSerializer(serializers.ModelSerializer):
 class RecipePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
-        fields = ("author", "name", "image", "text", "ingredients",
-                  "tag", "cooking_time", "is_favorited", "is_in_shopping_cart")
+        fields = ("name", "image", "text",
+                  "ingredients", "tags", "cooking_time")
 
     def create(self, validated_data):
         ingredients = validated_data.pop("ingredients")

@@ -4,24 +4,32 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from recipes.models import Recipe, Tag, Ingredient
-from .serializers import RecipeSerializer, TagSerializer, IngredientSerializer
+from .serializers import (
+    RecipeSerializer, TagSerializer,
+    IngredientSerializer, RecipePostSerializer
+)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
 
-    @action(permission_classes=[IsAuthenticated],)
+    def get_serializer_class(self):
+        if self.request.method in ["POST", "PUT", "PATCH"]:
+            return RecipePostSerializer
+        return RecipeSerializer
+
+    @action(detail=False, permission_classes=[IsAuthenticated],)
     def download_shopping_cart(self, request):
         pass
 
-    @action(methods=["post", "delete"], permission_classes=[IsAuthenticated],)
+    @action(detail=False, methods=["post", "delete"], permission_classes=[IsAuthenticated],)
     def shopping_cart(self, request):
         # serializer = self.get_serializer(request.user)
         # return Response(serializer.data, status=status.HTTP_200_OK)
         pass
 
-    @action(methods=["post", "delete"], permission_classes=[IsAuthenticated],)
+    @action(detail=False, methods=["post", "delete"], permission_classes=[IsAuthenticated],)
     def favourite(self, request):
         pass
 

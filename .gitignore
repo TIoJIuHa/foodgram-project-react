@@ -131,3 +131,4 @@ dmypy.json
 # .idea
 .idea
 requests.http
+backend/media/

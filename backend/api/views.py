@@ -1,23 +1,20 @@
-from rest_framework import status, viewsets
+from rest_framework import filters, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
-
+from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import Recipe, Tag, Ingredient
 from .serializers import (
-    RecipeSerializer, TagSerializer,
-    IngredientSerializer, RecipePostSerializer
+    TagSerializer,
+    IngredientSerializer, RecipeCreateSerializer
 )
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
-
-    def get_serializer_class(self):
-        if self.request.method in ["POST", "PUT", "PATCH"]:
-            return RecipePostSerializer
-        return RecipeSerializer
+    serializer_class = RecipeCreateSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["is_favorited", "author", "is_in_shopping_cart", "tags"]
 
     @action(detail=False, permission_classes=[IsAuthenticated],)
     def download_shopping_cart(self, request):
@@ -25,8 +22,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post", "delete"], permission_classes=[IsAuthenticated],)
     def shopping_cart(self, request):
-        # serializer = self.get_serializer(request.user)
-        # return Response(serializer.data, status=status.HTTP_200_OK)
         pass
 
     @action(detail=False, methods=["post", "delete"], permission_classes=[IsAuthenticated],)
@@ -37,9 +32,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    pagination_class = None
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
-    # + поиск по имени
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    pagination_class = None
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["^name"]

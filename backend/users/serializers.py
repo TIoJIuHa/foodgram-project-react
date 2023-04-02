@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from api.serializers import RecipeSerializer
+# from api.serializers import RecipeSerializer
 
 from .models import Follow
 
@@ -49,8 +49,8 @@ class CustomUserSerializer(CustomUserCreateSerializer):
         return False
 
 
-class SubscriptionSerializer(serializers.ModelSerializer):
-    recipes = RecipeSerializer
+# class SubscriptionSerializer(serializers.ModelSerializer):
+#     recipes = RecipeSerializer
 
-    class Meta:
-        model = User
+#     class Meta:
+#         model = User

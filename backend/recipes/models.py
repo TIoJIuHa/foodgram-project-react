@@ -22,9 +22,11 @@ class Tag(models.Model):
         verbose_name="Slug тега",
         unique=True,
         max_length=200,
-        null=True,
         validators=[RegexValidator(regex="^[-a-zA-Z0-9_]+$")]
     )
+
+    class Meta:
+        ordering = ["-id"]
 
     def __str__(self):
         return self.name
@@ -41,6 +43,9 @@ class Ingredient(models.Model):
         max_length=200
     )
 
+    class Meta:
+        ordering = ["-id"]
+
     def __str__(self):
         return self.name
 
@@ -54,7 +59,10 @@ class Recipe(models.Model):
         related_name="recipes"
     )
     name = models.CharField(verbose_name="Название рецепта", max_length=200)
-    image = models.ImageField(verbose_name="Картинка", upload_to="recipes/")
+    image = models.ImageField(
+        verbose_name="Картинка",
+        upload_to="media/recipe_images/"
+    )
     text = models.TextField(verbose_name="Описание рецепта")
     ingredients = models.ManyToManyField(
         Ingredient,
@@ -66,7 +74,6 @@ class Recipe(models.Model):
         Tag,
         verbose_name="Теги",
         related_name="recipes",
-        blank=True
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name="Время приготовления в минутах",
@@ -77,6 +84,9 @@ class Recipe(models.Model):
         auto_now_add=True
     )
 
+    class Meta:
+        ordering = ["-pub_date"]
+
     def __str__(self):
         return self.name
 
@@ -86,16 +96,19 @@ class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         verbose_name="Рецепт",
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name="recipe_ingredient"
     )
     ingredient = models.ForeignKey(
         Ingredient,
         verbose_name="Ингредиент",
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name="recipe_ingredient"
     )
     amount = models.PositiveSmallIntegerField(
         verbose_name="Нужное количество ингредиента для рецепта",
-        validators=[MinValueValidator(1)]
+        validators=[MinValueValidator(1)],
+        default=1
     )
 
 

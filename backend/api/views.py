@@ -1,8 +1,9 @@
 from rest_framework import filters, status, viewsets
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import Recipe, Tag, Ingredient, ShoppingCart, Favorite
 from .serializers import (
@@ -37,11 +38,35 @@ class RecipeViewSet(viewsets.ModelViewSet):
         model.objects.filter(user=user, recipe=recipe).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=False, permission_classes=[IsAuthenticated],)
+    @action(detail=False,
+            methods=["get"],
+            permission_classes=[IsAuthenticated],)
     def download_shopping_cart(self, request):
-        pass
+        filename = "products_for_recipes.txt"
+        content = "----------- Список покупок -----------\n\n"
+        list_of_ingredients = {}
+        cart = self.request.user.shopping_cart.select_related("recipe").all()
+        recipes_in_cart = [item.recipe for item in cart]
+        for recipe in recipes_in_cart:
+            items = recipe.recipe_ingredient.select_related("ingredient").all()
+            for item in items:
+                in_list = list_of_ingredients.get(item.ingredient)
+                if in_list:
+                    list_of_ingredients[item.ingredient] += item.amount
+                else:
+                    list_of_ingredients[item.ingredient] = item.amount
+        for ingredient, amount in list_of_ingredients.items():
+            content += (f"* {ingredient} ({ingredient.measurement_unit})" +
+                        f" — {amount}\n")
+        content += "\n--------------------------------------"
+        response = HttpResponse(content, content_type="text/plain")
+        response["Content-Disposition"] = ("attachment; " +
+                                           "filename={0}".format(filename))
+        return response
 
-    @action(detail=True, methods=["post", "delete"], permission_classes=[IsAuthenticated])
+    @action(detail=True,
+            methods=["post", "delete"],
+            permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, pk=None):
         user = self.request.user
         try:
@@ -56,7 +81,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return self.create_relation(user, recipe, ShoppingCart, "корзине")
         return self.delete_relation(user, recipe, ShoppingCart, "корзине")
 
-    @action(detail=True, methods=["post", "delete"], permission_classes=[IsAuthenticated],)
+    @action(detail=True,
+            methods=["post", "delete"],
+            permission_classes=[IsAuthenticated],)
     def favorite(self, request, pk=None):
         user = self.request.user
         try:

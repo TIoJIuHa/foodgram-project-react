@@ -1,14 +1,12 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import status, viewsets
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from recipes.models import Recipe
-from api.serializers import SmallRecipeSerializer
+from rest_framework.permissions import IsAuthenticated
 from .models import Follow
-from .serializers import CustomUserSerializer, SubscriptionSerializer
+from .serializers import SubscriptionSerializer
 
 User = get_user_model()
 
@@ -19,7 +17,7 @@ class CustomUserViewSet(UserViewSet):
     @action(detail=False, permission_classes=[IsAuthenticated],)
     def subscriptions(self, request):
         user = self.request.user
-        queryset = user.follower.all()
+        queryset = user.follower.select_related("following").all()
         subscriptions = [item.following for item in queryset]
         serializer = SubscriptionSerializer(
             subscriptions,
@@ -27,20 +25,10 @@ class CustomUserViewSet(UserViewSet):
             context={"request": request}
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
-        # recipes_limit = self.request.query_params.get("recipes_limit")
-        # print(self.request.user.following)
-        # print(self.request.user.follower)
-        # subscriptions = Follow.objects.filter(user=self.request.user).all()
-        # print(subscriptions)
-        # recipes = Recipe.objects.filter(author=self.request.user)
-        # if recipes_limit:
-        #     recipes = recipes[::int(recipes_limit)]
-        # serializer = CustomUserSerializer(subscriptions, many=True)
-        # serializer.data["recipes"] = [SmallRecipeSerializer(recipe) for recipe in recipes]
-        # print(serializer)
-        # return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=["post", "delete"], permission_classes=[IsAuthenticated],)
+    @action(detail=True,
+            methods=["post", "delete"],
+            permission_classes=[IsAuthenticated],)
     def subscribe(self, request, id=None):
         user = self.request.user
         try:
@@ -57,7 +45,9 @@ class CustomUserViewSet(UserViewSet):
                                 "что передали id, отличный от собственного.")},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-        is_subscribed = Follow.objects.filter(user=user, following=author).exists()
+        is_subscribed = Follow.objects.filter(
+            user=user, following=author
+        ).exists()
         if request.method == "POST":
             if is_subscribed:
                 return Response(
@@ -65,7 +55,9 @@ class CustomUserViewSet(UserViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             Follow.objects.create(user=user, following=author)
-            serializer = SubscriptionSerializer(author, context={"request": request})
+            serializer = SubscriptionSerializer(
+                author, context={"request": request}
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if not is_subscribed:
             return Response(

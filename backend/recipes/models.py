@@ -26,7 +26,8 @@ class Tag(models.Model):
     )
 
     class Meta:
-        ordering = ["id"]
+        verbose_name = "Тег"
+        verbose_name_plural = "Теги"
 
     def __str__(self):
         return self.name
@@ -44,7 +45,9 @@ class Ingredient(models.Model):
     )
 
     class Meta:
-        ordering = ["id"]
+        ordering = ["name"]
+        verbose_name = "Ингредиент"
+        verbose_name_plural = "Ингредиенты"
 
     def __str__(self):
         return self.name
@@ -86,6 +89,8 @@ class Recipe(models.Model):
 
     class Meta:
         ordering = ["-pub_date"]
+        verbose_name = "Рецепт"
+        verbose_name_plural = "Рецепты"
 
     def __str__(self):
         return self.name
@@ -111,6 +116,16 @@ class RecipeIngredient(models.Model):
         default=1
     )
 
+    class Meta:
+        verbose_name = "Ингредиенты в рецептах"
+        verbose_name_plural = "Ингредиенты в рецептах"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["recipe", "ingredient"],
+                name="unique_recipe_ingredient"
+            )
+        ]
+
 
 class ShoppingCart(models.Model):
     """Корзина с рецептами"""
@@ -126,6 +141,16 @@ class ShoppingCart(models.Model):
         on_delete=models.CASCADE,
     )
 
+    class Meta:
+        verbose_name = "Корзина"
+        verbose_name_plural = "Корзина"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["recipe", "user"],
+                name="unique_recipe_in_cart"
+            )
+        ]
+
 
 class Favorite(models.Model):
     """Избранное"""
@@ -140,3 +165,13 @@ class Favorite(models.Model):
         verbose_name="Рецепт для избранного",
         on_delete=models.CASCADE,
     )
+
+    class Meta:
+        verbose_name = "Избранное"
+        verbose_name_plural = "Избранное"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["recipe", "user"],
+                name="unique_recipe_in_favorited"
+            )
+        ]

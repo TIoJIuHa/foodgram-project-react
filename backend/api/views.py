@@ -10,14 +10,15 @@ from .serializers import (
     TagSerializer, SmallRecipeSerializer,
     IngredientSerializer, RecipeSerializer,
 )
+from .filters import RecipeFilter
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     http_method_names = ["get", "post", "patch", "delete"]
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["author", "tags"]
+    filterset_class = RecipeFilter
+    filter_backends = [DjangoFilterBackend, ]
 
     def create_relation(self, user, recipe, model, str_name):
         if model.objects.filter(user=user, recipe=recipe).exists():

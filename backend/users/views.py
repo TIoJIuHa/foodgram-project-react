@@ -3,18 +3,17 @@ from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 from .models import Follow
 from .serializers import SubscriptionSerializer
-# from api.pagination import LimitPagination
 
 User = get_user_model()
 
 
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
-    # pagination_class = LimitPagination
 
     @action(detail=False, permission_classes=[IsAuthenticated], )
     def subscriptions(self, request):

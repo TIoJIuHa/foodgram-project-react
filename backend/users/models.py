@@ -23,7 +23,6 @@ class User(AbstractUser):
         verbose_name_plural = "Пользователи"
 
 
-
 class Follow(models.Model):
     """Подписка на автора рецептов"""
     user = models.ForeignKey(

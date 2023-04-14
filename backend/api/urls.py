@@ -3,8 +3,8 @@ from rest_framework.routers import DefaultRouter
 
 from users.views import CustomUserViewSet
 
-from .views import (IngredientViewSet, RecipeViewSet, TagViewSet,
-                    ShoppingCartViewSet, FavoriteViewSet)
+from .views import (FavoriteViewSet, IngredientViewSet, RecipeViewSet,
+                    ShoppingCartViewSet, TagViewSet)
 
 router = DefaultRouter()
 

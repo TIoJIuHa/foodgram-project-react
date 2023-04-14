@@ -1,13 +1,14 @@
 from django.db.models import Exists, OuterRef
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
+
+from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from recipes.shopping_list import get_shopping_list
+
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
-from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
-from recipes.shopping_list import get_shopping_list
 
 from .filters import RecipeFilter
 from .permissions import AuthorOrReadOnly

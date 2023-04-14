@@ -48,12 +48,12 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
 
-      # - name: Push frontend to Docker Hub
-      #   uses: docker/build-push-action@v2 
-      #   with:
-      #     context: ./frontend/
-      #     push: true
-      #     tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
+      - name: Push frontend to Docker Hub
+        uses: docker/build-push-action@v2 
+        with:
+          context: ./frontend/
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
 
   deploy:
     name: Deploy to Yandex Cloud
@@ -70,8 +70,6 @@ jobs:
         passphrase: ${{ secrets.PASSPHRASE }}
         script: |
           cd infra/
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
           sudo docker-compose down
           sudo docker-compose rm -f backend frontend
           touch .env
@@ -84,5 +82,7 @@ jobs:
           echo DEBUG=${{ secrets.DEBUG }} >> .env
           echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
           echo CSRF_TRUSTED_ORIGINS=${{ secrets.CSRF_TRUSTED_ORIGINS }} >> .env
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
           sudo docker-compose up -d
           sudo docker image prune -f

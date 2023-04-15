@@ -63,6 +63,13 @@ class RecipeSerializer(serializers.ModelSerializer):
                   "cooking_time", "is_favorited", "is_in_shopping_cart")
 
     def create_ingredient_relation(self, ingredients, recipe):
+        unique_ingredients = []
+        for ingredient in ingredients:
+            if ingredient["id"] in unique_ingredients:
+                raise serializers.ValidationError(
+                    "Ингредиенты должны быть уникальными"
+                )
+            unique_ingredients.append(ingredient["id"])
         RecipeIngredient.objects.bulk_create([
             RecipeIngredient(
                 recipe=recipe,

@@ -56,6 +56,7 @@ scp nginx.conf <username>@<server>:/etc/nginx/conf.d/default.conf
 scp docker-compose.yaml <username>@<server>:/home/<username>/docker-compose.yaml
 ```
 - Создайте .env файл
+
 Пример:
 ```
 DB_ENGINE=django.db.backends.postgresql
